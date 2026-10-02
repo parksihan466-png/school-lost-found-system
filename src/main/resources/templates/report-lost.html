@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | Lost & Found</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav">
+            <div class="brand">School Lost & Found</div>
+            <nav>
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/report-lost}">Report Lost</a>
+                <a th:href="@{/report-found}">Report Found</a>
+                <a th:href="@{/lost-items}">Lost</a>
+                <a th:href="@{/found-items}">Found</a>
+                <a th:href="@{/admin}">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container section">
+        <h1>Dashboard</h1>
+        <p th:if="${message}" class="alert success" th:text="${message}">Success</p>
+        <p th:if="${successMessage}" class="alert success" th:text="${successMessage}">Success</p>
+
+        <div class="dashboard-grid">
+            <div class="stat-box">
+                <h3>Lost Items</h3>
+                <strong th:text="${lostCount}">0</strong>
+            </div>
+            <div class="stat-box">
+                <h3>Found Items</h3>
+                <strong th:text="${foundCount}">0</strong>
+            </div>
+            <div class="stat-box">
+                <h3>Claims</h3>
+                <strong th:text="${claimCount}">0</strong>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${items}">
+                        <td th:text="${item.title}">Title</td>
+                        <td th:text="${item.itemType}">LOST</td>
+                        <td th:text="${item.category}">Category</td>
+                        <td th:text="${item.status}">OPEN</td>
+                        <td><a th:href="@{/items/{id}(id=${item.id})}">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,202 @@
+package com.school.lostandfound.controller;
+
+import com.school.lostandfound.model.Claim;
+import com.school.lostandfound.model.Item;
+import com.school.lostandfound.model.User;
+import com.school.lostandfound.repository.ClaimRepository;
+import com.school.lostandfound.repository.ItemRepository;
+import com.school.lostandfound.repository.MessageRepository;
+import com.school.lostandfound.repository.UserRepository;
+import jakarta.validation.Valid;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+import java.util.Optional;
+
+@Controller
+public class HomeController {
+
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final ClaimRepository claimRepository;
+    private final MessageRepository messageRepository;
+
+    public HomeController(UserRepository userRepository,
+                         ItemRepository itemRepository,
+                         ClaimRepository claimRepository,
+                         MessageRepository messageRepository) {
+        this.userRepository = userRepository;
+        this.itemRepository = itemRepository;
+        this.claimRepository = claimRepository;
+        this.messageRepository = messageRepository;
+    }
+
+    @GetMapping("/")
+    public String home(Model model) {
+        List<Item> recentItems = itemRepository.findAll();
+        model.addAttribute("recentItems", recentItems.stream().limit(4).toList());
+        model.addAttribute("totalItems", itemRepository.count());
+        model.addAttribute("totalUsers", userRepository.count());
+        model.addAttribute("totalClaims", claimRepository.count());
+        return "index";
+    }
+
+    @GetMapping("/about")
+    public String about() {
+        return "about";
+    }
+
+    @GetMapping("/register")
+    public String registerPage(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String register(@Valid @ModelAttribute("user") User user,
+                           BindingResult result,
+                           RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "register";
+        }
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent() ||
+            userRepository.findByUsername(user.getUsername()).isPresent()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "A user with that email or username already exists.");
+            return "redirect:/register";
+        }
+
+        user.setRole(User.Role.STUDENT);
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("successMessage", "Registration successful. Please log in.");
+        return "redirect:/login";
+    }
+
+    @GetMapping("/login")
+    public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("errorMessage", "Invalid username or password.");
+        }
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String username,
+                        @RequestParam String password,
+                        RedirectAttributes redirectAttributes) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
+            redirectAttributes.addFlashAttribute("message", "Welcome, " + userOpt.get().getFullName());
+            return "redirect:/dashboard";
+        }
+
+        return "redirect:/login?error=true";
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        List<Item> allItems = itemRepository.findAll();
+        model.addAttribute("items", allItems);
+        model.addAttribute("lostCount", allItems.stream().filter(i -> i.getItemType() == Item.ItemType.LOST).count());
+        model.addAttribute("foundCount", allItems.stream().filter(i -> i.getItemType() == Item.ItemType.FOUND).count());
+        model.addAttribute("claimCount", claimRepository.count());
+        return "dashboard";
+    }
+
+    @GetMapping("/report-lost")
+    public String reportLostPage(Model model) {
+        model.addAttribute("item", new Item());
+        return "report-lost";
+    }
+
+    @PostMapping("/report-lost")
+    public String reportLost(@ModelAttribute("item") Item item,
+                            RedirectAttributes redirectAttributes) {
+        Optional<User> user = userRepository.findByUsername("admin");
+        user.ifPresent(item::setCreatedBy);
+        item.setItemType(Item.ItemType.LOST);
+        itemRepository.save(item);
+        redirectAttributes.addFlashAttribute("successMessage", "Lost item reported successfully.");
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/report-found")
+    public String reportFoundPage(Model model) {
+        model.addAttribute("item", new Item());
+        return "report-found";
+    }
+
+    @PostMapping("/report-found")
+    public String reportFound(@ModelAttribute("item") Item item,
+                             RedirectAttributes redirectAttributes) {
+        Optional<User> user = userRepository.findByUsername("admin");
+        user.ifPresent(item::setCreatedBy);
+        item.setItemType(Item.ItemType.FOUND);
+        itemRepository.save(item);
+        redirectAttributes.addFlashAttribute("successMessage", "Found item reported successfully.");
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/lost-items")
+    public String lostItems(Model model) {
+        List<Item> items = itemRepository.findAll().stream()
+                .filter(i -> i.getItemType() == Item.ItemType.LOST)
+                .toList();
+        model.addAttribute("items", items);
+        return "lost-items";
+    }
+
+    @GetMapping("/found-items")
+    public String foundItems(Model model) {
+        List<Item> items = itemRepository.findAll().stream()
+                .filter(i -> i.getItemType() == Item.ItemType.FOUND)
+                .toList();
+        model.addAttribute("items", items);
+        return "found-items";
+    }
+
+    @GetMapping("/admin")
+    public String admin(Model model) {
+        model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("items", itemRepository.findAll());
+        model.addAttribute("claims", claimRepository.findAll());
+        return "admin";
+    }
+
+    @GetMapping("/items/{id}")
+    public String itemDetails(@PathVariable Long id, Model model) {
+        Item item = itemRepository.findById(id).orElseThrow();
+        model.addAttribute("item", item);
+        return "item-details";
+    }
+
+    @PostMapping("/claim")
+    public String submitClaim(@RequestParam Long itemId,
+                              @RequestParam String notes,
+                              RedirectAttributes redirectAttributes) {
+        Item item = itemRepository.findById(itemId).orElse(null);
+        User claimant = userRepository.findByUsername("aisha").orElse(null);
+
+        if (item != null && claimant != null) {
+            Claim claim = new Claim();
+            claim.setItem(item);
+            claim.setClaimant(claimant);
+            claim.setNotes(notes);
+            claimRepository.save(claim);
+            redirectAttributes.addFlashAttribute("successMessage", "Your claim has been submitted successfully.");
+            return "redirect:/items/" + itemId;
+        }
+
+        redirectAttributes.addFlashAttribute("errorMessage", "Unable to submit claim.");
+        return "redirect:/lost-items";
+    }
+}

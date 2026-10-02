@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Details</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="container section">
+        <div class="detail-layout">
+            <div class="detail-image">
+                <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'}" alt="Item detail">
+            </div>
+            <div class="detail-content">
+                <span class="chip" th:text="${item.itemType}">LOST</span>
+                <h1 th:text="${item.title}">Item Title</h1>
+                <p><strong>Category:</strong> <span th:text="${item.category}">Category</span></p>
+                <p><strong>Location:</strong> <span th:text="${item.locationFound}">Location</span></p>
+                <p><strong>Status:</strong> <span th:text="${item.status}">Status</span></p>
+                <p th:text="${item.description}">Description</p>
+
+                <form th:action="@{/claim}" method="post" class="claim-form">
+                    <input type="hidden" name="itemId" th:value="${item.id}">
+                    <label>Claim Details</label>
+                    <textarea name="notes" rows="4" placeholder="Describe why this item belongs to you..."></textarea>
+                    <button type="submit" class="button primary">Submit Claim</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

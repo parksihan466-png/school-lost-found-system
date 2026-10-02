@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav">
+            <div class="brand">School Lost & Found</div>
+            <nav>
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/admin}">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container section">
+        <h1>Administrator Dashboard</h1>
+
+        <div class="table-wrapper">
+            <h2>Users</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.fullName}">Name</td>
+                        <td th:text="${user.username}">Username</td>
+                        <td th:text="${user.email}">Email</td>
+                        <td th:text="${user.role}">Role</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-wrapper">
+            <h2>Items</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${items}">
+                        <td th:text="${item.title}">Title</td>
+                        <td th:text="${item.itemType}">Type</td>
+                        <td th:text="${item.status}">Status</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-wrapper">
+            <h2>Claims</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Claimant</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="claim : ${claims}">
+                        <td th:text="${claim.item.title}">Item</td>
+                        <td th:text="${claim.claimant.fullName}">Name</td>
+                        <td th:text="${claim.status}">Status</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

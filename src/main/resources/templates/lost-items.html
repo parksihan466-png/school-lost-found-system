@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Found Item</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="container section form-page">
+        <h1>Report Found Item</h1>
+        <form th:action="@{/report-found}" method="post" th:object="${item}" class="form-card">
+            <div class="form-group">
+                <label>Item Title</label>
+                <input type="text" th:field="*{title}" required>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" th:field="*{category}" required>
+            </div>
+            <div class="form-group">
+                <label>Location Found</label>
+                <input type="text" th:field="*{locationFound}" required>
+            </div>
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="text" th:field="*{imageUrl}">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea th:field="*{description}" rows="5" required></textarea>
+            </div>
+            <button class="button primary" type="submit">Submit Report</button>
+        </form>
+    </div>
+</body>
+</html>
