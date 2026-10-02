@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Reports</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav">
+            <div class="brand">School Lost & Found</div>
+            <nav>
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/my-reports}">My Reports</a>
+                <a th:href="@{/my-claims}">My Claims</a>
+                <a th:href="@{/messages}">Messages</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container section">
+        <h1>My Reports</h1>
+        <div class="card-grid">
+            <div class="item-card" th:each="item : ${items}">
+                <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'}" alt="Report">
+                <div class="item-body">
+                    <span class="chip" th:text="${item.itemType}">LOST</span>
+                    <h3 th:text="${item.title}">Title</h3>
+                    <p th:text="${item.description}">Description</p>
+                    <a th:href="@{/items/{id}(id=${item.id})}">View details</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

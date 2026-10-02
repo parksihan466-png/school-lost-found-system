@@ -2,36 +2,64 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Register | Lost & Found</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
-    <div class="auth-shell">
-        <div class="auth-card">
-            <h1>Create Account</h1>
-            <p th:if="${errorMessage}" class="alert error" th:text="${errorMessage}">Error</p>
-            <p th:if="${successMessage}" class="alert success" th:text="${successMessage}">Success</p>
-            <form th:action="@{/register}" method="post" th:object="${user}">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" th:field="*{fullName}" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" th:field="*{email}" required>
-                </div>
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" th:field="*{username}" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" th:field="*{password}" required>
-                </div>
-                <button class="button primary full" type="submit">Register</button>
-            </form>
-            <p class="auth-link">Already have an account? <a th:href="@{/login}">Login</a></p>
+    <header class="site-header">
+        <div class="container nav">
+            <div class="brand">School Lost & Found</div>
+            <nav>
+                <a th:href="@{/}">Home</a>
+                <a th:href="@{/about}">About</a>
+                <a th:href="@{/lost-items}">Lost Items</a>
+                <a th:href="@{/found-items}">Found Items</a>
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/login}">Login</a>
+                <a th:href="@{/register}">Register</a>
+            </nav>
         </div>
-    </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-grid">
+                <div>
+                    <p class="eyebrow">Fast. Secure. Organized.</p>
+                    <h1>Reuniting items with their owners.</h1>
+                    <p>Students and staff can report lost or found items, track claims, and help recover belongings quickly.</p>
+                    <div class="cta-row">
+                        <a class="button primary" th:href="@{/report-lost}">Report Lost Item</a>
+                        <a class="button secondary" th:href="@{/report-found}">Report Found Item</a>
+                    </div>
+                </div>
+                <div class="hero-card">
+                    <div class="stat-card"><strong th:text="${totalItems}">0</strong><span>Items recorded</span></div>
+                    <div class="stat-card"><strong th:text="${totalUsers}">0</strong><span>Registered users</span></div>
+                    <div class="stat-card"><strong th:text="${totalClaims}">0</strong><span>Claims submitted</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container section">
+            <h2>Recent records</h2>
+            <div class="card-grid">
+                <div class="item-card" th:each="item : ${recentItems}">
+                    <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'}" alt="Item image">
+                    <div class="item-body">
+                        <span class="chip" th:text="${item.itemType}">LOST</span>
+                        <h3 th:text="${item.title}">Item Title</h3>
+                        <p th:text="${item.description}">Description</p>
+                        <a th:href="@{/items/{id}(id=${item.id})}">View details</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">© 2026 School Lost & Found Management System</div>
+    </footer>
 </body>
 </html>

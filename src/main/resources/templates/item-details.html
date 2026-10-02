@@ -19,6 +19,14 @@
     </header>
     <main class="container section">
         <h1>Found Items</h1>
+
+        <form method="get" class="filter-form" style="margin: 20px 0; display:flex; gap:12px; flex-wrap:wrap;">
+            <input type="text" name="keyword" placeholder="Search keyword" />
+            <input type="text" name="category" placeholder="Category" />
+            <input type="text" name="location" placeholder="Location" />
+            <button type="submit" class="button primary">Filter</button>
+        </form>
+
         <div class="card-grid">
             <div class="item-card" th:each="item : ${items}">
                 <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'}" alt="Found item">

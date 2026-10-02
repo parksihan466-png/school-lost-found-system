@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Messages</title>
+    <title>My Claims</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
@@ -19,21 +19,21 @@
     </header>
 
     <main class="container section">
-        <h1>Messages</h1>
+        <h1>My Claims</h1>
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Message</th>
+                        <th>Item</th>
+                        <th>Notes</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="message : ${messages}">
-                        <td th:text="${message.sender != null ? message.sender.fullName : 'Unknown'}">From</td>
-                        <td th:text="${message.receiver != null ? message.receiver.fullName : 'Unknown'}">To</td>
-                        <td th:text="${message.content}">Message</td>
+                    <tr th:each="claim : ${claims}">
+                        <td th:text="${claim.item.title}">Item</td>
+                        <td th:text="${claim.notes}">Notes</td>
+                        <td th:text="${claim.status}">Status</td>
                     </tr>
                 </tbody>
             </table>
