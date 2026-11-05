@@ -1,60 +1,35 @@
 package com.school.lostandfound.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "items")
-public class Item {
+@Table(name = "claims")
+public class Claim {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String title;
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    @ManyToOne
+    @JoinColumn(name = "claimant_id")
+    private User claimant;
 
     @Column(length = 2000)
-    private String description;
-
-    @NotBlank
-    private String category;
+    private String notes;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "item_type")
-    private ItemType itemType;
+    private Status status = Status.PENDING;
 
-    @Column(name = "location_found")
-    private String locationFound;
-
-    @Column(name = "date_reported")
-    private LocalDateTime dateReported = LocalDateTime.now();
-
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.OPEN;
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
-
-    @ManyToOne
-    @JoinColumn(name = "finder_id")
-    private User finder;
-
-    @ManyToOne
-    @JoinColumn(name = "created_by")
-    private User createdBy;
-
-    public enum ItemType {
-        LOST, FOUND
-    }
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Status {
-        OPEN, MATCHED, RECOVERED, RETURNED, CLOSED
+        PENDING, APPROVED, REJECTED
     }
 
     public Long getId() {
@@ -65,52 +40,28 @@ public class Item {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public Item getItem() {
+        return item;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setItem(Item item) {
+        this.item = item;
     }
 
-    public String getDescription() {
-        return description;
+    public User getClaimant() {
+        return claimant;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setClaimant(User claimant) {
+        this.claimant = claimant;
     }
 
-    public String getCategory() {
-        return category;
+    public String getNotes() {
+        return notes;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public ItemType getItemType() {
-        return itemType;
-    }
-
-    public void setItemType(ItemType itemType) {
-        this.itemType = itemType;
-    }
-
-    public String getLocationFound() {
-        return locationFound;
-    }
-
-    public void setLocationFound(String locationFound) {
-        this.locationFound = locationFound;
-    }
-
-    public LocalDateTime getDateReported() {
-        return dateReported;
-    }
-
-    public void setDateReported(LocalDateTime dateReported) {
-        this.dateReported = dateReported;
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public Status getStatus() {
@@ -121,35 +72,11 @@ public class Item {
         this.status = status;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public User getFinder() {
-        return finder;
-    }
-
-    public void setFinder(User finder) {
-        this.finder = finder;
-    }
-
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

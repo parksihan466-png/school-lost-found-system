@@ -12,11 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -51,7 +47,8 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String home(Model model, Principal principal) {
+        model.addAttribute("currentUser", getCurrentUser(principal));
         List<Item> recentItems = itemRepository.findAll().stream()
             .sorted(Comparator.comparing(Item::getDateReported).reversed())
             .limit(4)
@@ -65,12 +62,14 @@ public class HomeController {
     }
 
     @GetMapping("/about")
-    public String about() {
+    public String about(Model model, Principal principal) {
+        model.addAttribute("currentUser", getCurrentUser(principal));
         return "about";
     }
 
     @GetMapping("/register")
-    public String registerPage(Model model) {
+    public String registerPage(Model model, Principal principal) {
+        model.addAttribute("currentUser", getCurrentUser(principal));
         model.addAttribute("user", new User());
         return "register";
     }
@@ -92,12 +91,14 @@ public class HomeController {
         user.setRole(User.Role.STUDENT);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+
         redirectAttributes.addFlashAttribute("successMessage", "Registration successful. Please log in.");
         return "redirect:/login";
     }
 
     @GetMapping("/login")
-    public String loginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+    public String loginPage(@RequestParam(value = "error", required = false) String error, Model model, Principal principal) {
+        model.addAttribute("currentUser", getCurrentUser(principal));
         if (error != null) {
             model.addAttribute("errorMessage", "Invalid username or password.");
         }
@@ -118,8 +119,8 @@ public class HomeController {
 
     @GetMapping("/report-lost")
     public String reportLostPage(Model model, Principal principal) {
-        model.addAttribute("item", new Item());
         model.addAttribute("currentUser", getCurrentUser(principal));
+        model.addAttribute("item", new Item());
         return "report-lost";
     }
 
@@ -145,8 +146,8 @@ public class HomeController {
 
     @GetMapping("/report-found")
     public String reportFoundPage(Model model, Principal principal) {
-        model.addAttribute("item", new Item());
         model.addAttribute("currentUser", getCurrentUser(principal));
+        model.addAttribute("item", new Item());
         return "report-found";
     }
 
@@ -172,9 +173,11 @@ public class HomeController {
 
     @GetMapping("/lost-items")
     public String lostItems(@RequestParam(value = "keyword", required = false) String keyword,
-                           @RequestParam(value = "category", required = false) String category,
-                           @RequestParam(value = "location", required = false) String location,
-                           Model model) {
+                            @RequestParam(value = "category", required = false) String category,
+                            @RequestParam(value = "location", required = false) String location,
+                            Model model,
+                            Principal principal) {
+        model.addAttribute("currentUser", getCurrentUser(principal));
         List<Item> items = itemRepository.findAll().stream()
             .filter(item -> item.getItemType() == Item.ItemType.LOST)
             .filter(item -> matchesFilter(item, keyword, category, location))
@@ -186,9 +189,11 @@ public class HomeController {
 
     @GetMapping("/found-items")
     public String foundItems(@RequestParam(value = "keyword", required = false) String keyword,
-                            @RequestParam(value = "category", required = false) String category,
-                            @RequestParam(value = "location", required = false) String location,
-                            Model model) {
+                             @RequestParam(value = "category", required = false) String category,
+                             @RequestParam(value = "location", required = false) String location,
+                             Model model,
+                             Principal principal) {
+        model.addAttribute("currentUser", getCurrentUser(principal));
         List<Item> items = itemRepository.findAll().stream()
             .filter(item -> item.getItemType() == Item.ItemType.FOUND)
             .filter(item -> matchesFilter(item, keyword, category, location))
@@ -201,30 +206,31 @@ public class HomeController {
     @GetMapping("/my-reports")
     public String myReports(Model model, Principal principal) {
         User currentUser = getCurrentUser(principal);
+        model.addAttribute("currentUser", currentUser);
         List<Item> items = itemRepository.findAll().stream()
             .filter(item -> currentUser != null && item.getCreatedBy() != null && item.getCreatedBy().getId().equals(currentUser.getId()))
             .collect(Collectors.toList());
 
         model.addAttribute("items", items);
-        model.addAttribute("currentUser", currentUser);
         return "my-reports";
     }
 
     @GetMapping("/my-claims")
     public String myClaims(Model model, Principal principal) {
         User currentUser = getCurrentUser(principal);
+        model.addAttribute("currentUser", currentUser);
         List<Claim> claims = claimRepository.findAll().stream()
             .filter(claim -> currentUser != null && claim.getClaimant() != null && claim.getClaimant().getId().equals(currentUser.getId()))
             .collect(Collectors.toList());
 
         model.addAttribute("claims", claims);
-        model.addAttribute("currentUser", currentUser);
         return "my-claims";
     }
 
     @GetMapping("/messages")
     public String messages(Model model, Principal principal) {
         User currentUser = getCurrentUser(principal);
+        model.addAttribute("currentUser", currentUser);
         List<Message> messages = messageRepository.findAll().stream()
             .filter(message -> currentUser != null &&
                 ((message.getSender() != null && message.getSender().getId().equals(currentUser.getId())) ||
@@ -233,12 +239,12 @@ public class HomeController {
             .collect(Collectors.toList());
 
         model.addAttribute("messages", messages);
-        model.addAttribute("currentUser", currentUser);
         return "messages";
     }
 
     @GetMapping("/admin")
-    public String admin(Model model) {
+    public String admin(Model model, Principal principal) {
+        model.addAttribute("currentUser", getCurrentUser(principal));
         model.addAttribute("users", userRepository.findAll());
         model.addAttribute("items", itemRepository.findAll());
         model.addAttribute("claims", claimRepository.findAll());
@@ -275,18 +281,18 @@ public class HomeController {
     @GetMapping("/items/{id}")
     public String itemDetails(@PathVariable Long id, Model model, Principal principal) {
         Item item = itemRepository.findById(id).orElseThrow();
-        model.addAttribute("item", item);
         model.addAttribute("currentUser", getCurrentUser(principal));
+        model.addAttribute("item", item);
         model.addAttribute("receiverId",
-            item.getCreatedBy() != null ? item.getCreatedBy().getId() : (item.getOwner() != null ? item.getOwner().getId() : item.getFinder().getId()));
+            item.getCreatedBy() != null ? item.getCreatedBy().getId() : (item.getOwner() != null ? item.getOwner().getId() : item.getFinder() != null ? item.getFinder().getId() : 0L));
         return "item-details";
     }
 
     @PostMapping("/claim")
     public String submitClaim(@RequestParam Long itemId,
-                              @RequestParam String notes,
-                              Principal principal,
-                              RedirectAttributes redirectAttributes) {
+                             @RequestParam String notes,
+                             Principal principal,
+                             RedirectAttributes redirectAttributes) {
         User currentUser = getCurrentUser(principal);
         if (currentUser == null) {
             return "redirect:/login";
@@ -350,14 +356,19 @@ public class HomeController {
         String normalizedCategory = category == null ? "" : category.trim().toLowerCase();
         String normalizedLocation = location == null ? "" : location.trim().toLowerCase();
 
-        boolean byKeyword = normalizedKeyword.isEmpty() ||
-            item.getTitle().toLowerCase().contains(normalizedKeyword) ||
-            item.getDescription().toLowerCase().contains(normalizedKeyword) ||
-            item.getCategory().toLowerCase().contains(normalizedKeyword) ||
-            item.getLocationFound().toLowerCase().contains(normalizedKeyword);
+        String title = item.getTitle() == null ? "" : item.getTitle();
+        String description = item.getDescription() == null ? "" : item.getDescription();
+        String categoryValue = item.getCategory() == null ? "" : item.getCategory();
+        String locationValue = item.getLocationFound() == null ? "" : item.getLocationFound();
 
-        boolean byCategory = normalizedCategory.isEmpty() || item.getCategory().toLowerCase().contains(normalizedCategory);
-        boolean byLocation = normalizedLocation.isEmpty() || (item.getLocationFound() != null && item.getLocationFound().toLowerCase().contains(normalizedLocation));
+        boolean byKeyword = normalizedKeyword.isEmpty() ||
+            title.toLowerCase().contains(normalizedKeyword) ||
+            description.toLowerCase().contains(normalizedKeyword) ||
+            categoryValue.toLowerCase().contains(normalizedKeyword) ||
+            locationValue.toLowerCase().contains(normalizedKeyword);
+
+        boolean byCategory = normalizedCategory.isEmpty() || categoryValue.toLowerCase().contains(normalizedCategory);
+        boolean byLocation = normalizedLocation.isEmpty() || locationValue.toLowerCase().contains(normalizedLocation);
 
         return byKeyword && byCategory && byLocation;
     }
@@ -370,7 +381,8 @@ public class HomeController {
         Path uploadDir = Paths.get("src/main/resources/static/uploads");
         Files.createDirectories(uploadDir);
 
-        String fileName = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename().replaceAll("\\s+", "_");
+        String originalName = imageFile.getOriginalFilename() == null ? "item" : imageFile.getOriginalFilename();
+        String fileName = System.currentTimeMillis() + "_" + originalName.replaceAll("\\s+", "_");
         Path target = uploadDir.resolve(fileName);
         Files.copy(imageFile.getInputStream(), target);
 

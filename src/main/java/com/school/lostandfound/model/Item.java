@@ -1,38 +1,61 @@
 package com.school.lostandfound.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "items")
+public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
-    @Column(name = "full_name")
-    private String fullName;
+    private String title;
+
+    @Column(length = 2000)
+    private String description;
 
     @NotBlank
-    @Email
-    @Column(unique = true)
-    private String email;
-
-    @NotBlank
-    @Column(unique = true)
-    private String username;
-
-    @NotBlank
-    private String password;
+    private String category;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.STUDENT;
+    @Column(name = "item_type")
+    private ItemType itemType;
 
-    public enum Role {
-        STUDENT, STAFF, ADMIN
+    @Column(name = "location_found")
+    private String locationFound;
+
+    @Column(name = "date_reported")
+    private LocalDateTime dateReported = LocalDateTime.now();
+
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.OPEN;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @ManyToOne
+    @JoinColumn(name = "finder_id")
+    private User finder;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    public enum ItemType {
+        LOST, FOUND
+    }
+
+    public enum Status {
+        OPEN, MATCHED, RECOVERED, RETURNED, CLOSED
     }
 
     public Long getId() {
@@ -43,43 +66,91 @@ public class User {
         this.id = id;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getTitle() {
+        return title;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getEmail() {
-        return email;
+    public String getDescription() {
+        return description;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getUsername() {
-        return username;
+    public String getCategory() {
+        return category;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public String getPassword() {
-        return password;
+    public ItemType getItemType() {
+        return itemType;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setItemType(ItemType itemType) {
+        this.itemType = itemType;
     }
 
-    public Role getRole() {
-        return role;
+    public String getLocationFound() {
+        return locationFound;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setLocationFound(String locationFound) {
+        this.locationFound = locationFound;
+    }
+
+    public LocalDateTime getDateReported() {
+        return dateReported;
+    }
+
+    public void setDateReported(LocalDateTime dateReported) {
+        this.dateReported = dateReported;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public User getFinder() {
+        return finder;
+    }
+
+    public void setFinder(User finder) {
+        this.finder = finder;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
     }
 }
