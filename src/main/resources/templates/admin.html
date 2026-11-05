@@ -1,32 +1,79 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Item Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
-    <div class="container section">
-        <div class="detail-layout">
-            <div class="detail-image">
-                <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'}" alt="Item detail">
-            </div>
-            <div class="detail-content">
-                <span class="chip" th:text="${item.itemType}">LOST</span>
-                <h1 th:text="${item.title}">Item Title</h1>
-                <p><strong>Category:</strong> <span th:text="${item.category}">Category</span></p>
-                <p><strong>Location:</strong> <span th:text="${item.locationFound}">Location</span></p>
-                <p><strong>Status:</strong> <span th:text="${item.status}">Status</span></p>
-                <p th:text="${item.description}">Description</p>
+    <header class="site-header">
+        <div class="container nav">
+            <div class="brand">School Lost & Found</div>
+            <nav>
+                <a th:href="@{/}">Home</a>
+                <a th:href="@{/report-lost}">Report Lost Item</a>
+                <a th:href="@{/report-found}">Report Found Item</a>
+                <a th:href="@{/lost-items}">Browse Items</a>
+                <a th:if="${currentUser != null}" th:href="@{/my-reports}">My Reports</a>
+                <a th:if="${currentUser == null}" th:href="@{/login}">Login</a>
+                <a th:if="${currentUser == null}" th:href="@{/register}">Register</a>
+                <a th:if="${currentUser != null}" th:href="@{/logout}">Logout</a>
+            </nav>
+        </div>
+    </header>
 
-                <form th:action="@{/claim}" method="post" class="claim-form">
-                    <input type="hidden" name="itemId" th:value="${item.id}">
-                    <label>Claim Details</label>
-                    <textarea name="notes" rows="4" placeholder="Describe why this item belongs to you..."></textarea>
-                    <button type="submit" class="button primary">Submit Claim</button>
-                </form>
+    <main class="section">
+        <div class="container">
+            <h1>Admin Dashboard</h1>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td>[[${user.fullName}]]</td>
+                            <td>[[${user.email}]]</td>
+                            <td>[[${user.role}]]</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="claim : ${claims}">
+                            <td>[[${claim.item.title}]]</td>
+                            <td>[[${claim.item.category}]]</td>
+                            <td>[[${claim.status}]]</td>
+                            <td>
+                                <form th:action="@{/admin/approve/{id}(id=${claim.id})}" method="post">
+                                    <button class="button primary" type="submit">Approve</button>
+                                </form>
+                                <form th:action="@{/admin/reject/{id}(id=${claim.id})}" method="post">
+                                    <button class="button secondary" type="submit">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
+    </main>
 </body>
 </html>

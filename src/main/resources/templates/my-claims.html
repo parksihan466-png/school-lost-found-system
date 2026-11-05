@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>My Reports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Claims</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
@@ -10,25 +11,42 @@
         <div class="container nav">
             <div class="brand">School Lost & Found</div>
             <nav>
-                <a th:href="@{/dashboard}">Dashboard</a>
-                <a th:href="@{/my-reports}">My Reports</a>
-                <a th:href="@{/my-claims}">My Claims</a>
-                <a th:href="@{/messages}">Messages</a>
+                <a th:href="@{/}">Home</a>
+                <a th:href="@{/report-lost}">Report Lost Item</a>
+                <a th:href="@{/report-found}">Report Found Item</a>
+                <a th:href="@{/lost-items}">Browse Items</a>
+                <a th:if="${currentUser != null}" th:href="@{/my-reports}">My Reports</a>
+                <a th:if="${currentUser == null}" th:href="@{/login}">Login</a>
+                <a th:if="${currentUser == null}" th:href="@{/register}">Register</a>
+                <a th:if="${currentUser != null}" th:href="@{/logout}">Logout</a>
             </nav>
         </div>
     </header>
 
-    <main class="container section">
-        <h1>My Reports</h1>
-        <div class="card-grid">
-            <div class="item-card" th:each="item : ${items}">
-                <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'}" alt="Report">
-                <div class="item-body">
-                    <span class="chip" th:text="${item.itemType}">LOST</span>
-                    <h3 th:text="${item.title}">Title</h3>
-                    <p th:text="${item.description}">Description</p>
-                    <a th:href="@{/items/{id}(id=${item.id})}">View details</a>
-                </div>
+    <main class="section">
+        <div class="container">
+            <h1>My Claims</h1>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Notes</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="claim : ${claims}">
+                            <td>[[${claim.item.title}]]</td>
+                            <td>[[${claim.notes}]]</td>
+                            <td>
+                                <span th:if="${claim.status.name() == 'PENDING'}" class="chip">Pending</span>
+                                <span th:if="${claim.status.name() == 'APPROVED'}" class="chip success">Approved</span>
+                                <span th:if="${claim.status.name() == 'REJECTED'}" class="chip danger">Rejected</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>

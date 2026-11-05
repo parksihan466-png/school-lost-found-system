@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Lost Items</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Found Items</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
@@ -11,31 +12,47 @@
             <div class="brand">School Lost & Found</div>
             <nav>
                 <a th:href="@{/}">Home</a>
-                <a th:href="@{/dashboard}">Dashboard</a>
-                <a th:href="@{/report-lost}">Report Lost</a>
-                <a th:href="@{/found-items}">Found</a>
+                <a th:href="@{/report-lost}">Report Lost Item</a>
+                <a th:href="@{/report-found}">Report Found Item</a>
+                <a th:href="@{/lost-items}">Browse Items</a>
+                <a th:if="${currentUser != null}" th:href="@{/my-reports}">My Reports</a>
+                <a th:if="${currentUser == null}" th:href="@{/login}">Login</a>
+                <a th:if="${currentUser == null}" th:href="@{/register}">Register</a>
+                <a th:if="${currentUser != null}" th:href="@{/logout}">Logout</a>
             </nav>
         </div>
     </header>
-    <main class="container section">
-        <h1>Lost Items</h1>
 
-        <form method="get" class="filter-form" style="margin: 20px 0; display:flex; gap:12px; flex-wrap:wrap;">
-            <input type="text" name="keyword" placeholder="Search keyword" />
-            <input type="text" name="category" placeholder="Category" />
-            <input type="text" name="location" placeholder="Location" />
-            <button type="submit" class="button primary">Filter</button>
-        </form>
+    <main class="section">
+        <div class="container">
+            <h1>Found Items</h1>
+            <form method="get" th:action="@{/found-items}" class="search-bar">
+                <div class="form-group inline">
+                    <input type="text" name="keyword" placeholder="Search by keyword">
+                    <select name="category">
+                        <option value="">All categories</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="books">Books</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="accessories">Accessories</option>
+                    </select>
+                    <input type="text" name="location" placeholder="Location">
+                    <button class="button primary" type="submit">Search</button>
+                </div>
+            </form>
 
-        <div class="card-grid">
-            <div class="item-card" th:each="item : ${items}">
-                <img th:src="${item.imageUrl != null ? item.imageUrl : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'}" alt="Lost item">
-                <div class="item-body">
-                    <span class="chip lost">LOST</span>
-                    <h3 th:text="${item.title}">Title</h3>
-                    <p th:text="${item.description}">Description</p>
-                    <small th:text="${item.locationFound}">Location</small>
-                    <a th:href="@{/items/{id}(id=${item.id})}">View details</a>
+            <div class="card-grid">
+                <div class="item-card" th:each="item : ${items}">
+                    <img th:if="${item.imageUrl != null and !#strings.isEmpty(item.imageUrl)}" th:src="@{${item.imageUrl}}" alt="Item image">
+                    <img th:if="${item.imageUrl == null or #strings.isEmpty(item.imageUrl)}" th:src="@{/images/default-item.jpg}" alt="Default item image">
+                    <div class="item-body">
+                        <span class="chip found">Found</span>
+                        <h3>[[${item.title}]]</h3>
+                        <p>[[${item.description}]]</p>
+                        <div><strong>Category:</strong> [[${item.category}]]</div>
+                        <div><strong>Location:</strong> [[${item.locationFound}]]</div>
+                        <a th:href="@{/items/{id}(id=${item.id})}">View details</a>
+                    </div>
                 </div>
             </div>
         </div>

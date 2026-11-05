@@ -1,30 +1,51 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Login | Lost & Found</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body>
-    <div class="auth-shell">
-        <div class="auth-card">
-            <h1>Welcome Back</h1>
-            <p th:if="${errorMessage}" class="alert error" th:text="${errorMessage}">Error</p>
-            <form th:action="@{/login}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required>
-                </div>
-                <button class="button primary full" type="submit">Login</button>
-            </form>
-            <p class="auth-link">Need an account? <a th:href="@{/register}">Register here</a></p>
-            <p class="note">Demo credentials: admin / admin123</p>
+<body class="auth-shell">
+    <div class="auth-card">
+        <h1>Create account</h1>
+
+        <div th:if="${errorMessage}" class="alert error">
+            [[${errorMessage}]]
         </div>
+
+        <div th:if="${successMessage}" class="alert success">
+            [[${successMessage}]]
+        </div>
+
+        <form th:action="@{/register}" method="post" th:object="${user}">
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input id="fullName" th:field="*{fullName}" type="text" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" th:field="*{email}" type="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" th:field="*{username}" type="text" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" th:field="*{password}" type="password" required>
+            </div>
+
+            <button class="button primary full" type="submit">Register</button>
+        </form>
+
+        <p class="auth-link">
+            Already have an account?
+            <a th:href="@{/login}">Login here</a>
+        </p>
     </div>
 </body>
 </html>
